@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "120264168787",
+    "project_id": "sistema-bemau",
+    "storage_bucket": "sistema-bemau.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120264168787:android:c68463e5a3d0be220f3da6",
+        "android_client_info": {
+          "package_name": "com.example.app_bemau"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaB40kAbzPsbodLIR5DiVbl-U-b_k3mJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

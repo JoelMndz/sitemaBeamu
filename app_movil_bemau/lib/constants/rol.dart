@@ -1,0 +1,4 @@
+enum Rol{
+  repartidor,
+  bodeguero
+}

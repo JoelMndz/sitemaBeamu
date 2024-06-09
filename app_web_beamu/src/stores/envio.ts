@@ -142,7 +142,7 @@ export const useEnvioStore = defineStore('envios', {
           idEmpleado: usuario!.id,
           observacion
         })
-        await updateDoc(doc(getFirestore(), _nombreColleccion, this.envioPorEliminar!.id),{
+        await updateDoc(doc(getFirestore(), _nombreColleccion, this.envioPorEntregar!.id),{
          estados: this.envioPorEntregar!.estados
         });
         this.envios = this.envios.map(x => x.id !== this.envioPorEntregar!.id ? x : this.envioPorEntregar!)

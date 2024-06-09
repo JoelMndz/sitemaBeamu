@@ -48,7 +48,6 @@ class RepartidorProvider with ChangeNotifier{
         final jsonEnvio = data.docs[i].data()!;
         if((jsonEnvio['estados'] as List<dynamic>).last['estado'] == Estados.reparto.name &&
             (jsonEnvio['estados'] as List<dynamic>).last['idEmpleado'] == usuario.id){
-          final docTipoEnvio = await _coleccionTipoEnvio.doc(jsonEnvio['idTipoEnvio']).get();
           final docCliente = await _coleccionCliente.doc(jsonEnvio['idCliente']).get();
           final docSucursalSalida = await _coleccionSucursal.doc(jsonEnvio['idSucursalSalida']).get();
           final docSucursalLlegada = await _coleccionSucursal.doc(jsonEnvio['idSucursalLlegada']).get();
@@ -62,7 +61,7 @@ class RepartidorProvider with ChangeNotifier{
               cedula: docCliente.data()!['cedula'],
               email: docCliente.data()!['email']
             ), 
-            tipo: docTipoEnvio.data()!['nombre'], 
+            guia: jsonEnvio['guia'], 
             pesoKg: double.parse(jsonEnvio['pesoKg'].toString()), 
             entregaDomicilio: jsonEnvio['entregaDomicilio'], 
             estados: (jsonEnvio['estados'] as List<dynamic>)
@@ -138,7 +137,6 @@ class RepartidorProvider with ChangeNotifier{
       throw Exception('El QR no esta registrado!');
     }
     final jsonEnvio = docEnvio.data()!;
-    final docTipoEnvio = await _coleccionTipoEnvio.doc(jsonEnvio['idTipoEnvio']).get();
     final docCliente = await _coleccionCliente.doc(jsonEnvio['idCliente']).get();
     final docSucursalSalida = await _coleccionSucursal.doc(jsonEnvio['idSucursalSalida']).get();
     final docSucursalLlegada = await _coleccionSucursal.doc(jsonEnvio['idSucursalLlegada']).get();
@@ -152,7 +150,7 @@ class RepartidorProvider with ChangeNotifier{
         cedula: docCliente.data()!['cedula'],
         email: docCliente.data()!['email']
       ), 
-      tipo: docTipoEnvio.data()!['nombre'], 
+      guia: jsonEnvio['guia'], 
       pesoKg: double.parse(jsonEnvio['pesoKg'].toString()), 
       entregaDomicilio: jsonEnvio['entregaDomicilio'], 
       estados: (jsonEnvio['estados'] as List<dynamic>)

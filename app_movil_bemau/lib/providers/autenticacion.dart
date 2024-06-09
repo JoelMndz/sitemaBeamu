@@ -76,7 +76,7 @@ class AutenticacionProvider with ChangeNotifier{
     final data = await _collection
       .where('email',isEqualTo: email)
       .where('eliminado', isEqualTo: false)
-      // .where('rol', whereIn: [Rol.bodeguero.name, Rol.repartidor.name])
+      .where('rol', whereIn: [Rol.bodeguero.name, Rol.repartidor.name])
       .get();
     if(data.docs.first != null){
       final campos = data.docs.first.data();

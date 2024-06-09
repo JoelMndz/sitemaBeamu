@@ -8,7 +8,9 @@
       <VCardText>
         <VAutocomplete 
           v-model="campos.idCliente"
+          prepend-inner-icon="mdi-magnify"
           label="Cliente que envía el paquete"
+          :custom-filter="buscarCliente"
           :items="clientes"
           item-value="id"
           :item-props="(i) => ({title: i.nombres, subtitle: i.cedula})"
@@ -34,24 +36,13 @@
           v-model="campos.idSucursalLlegada"
           :rules="[campoRequerido]"
         />
-        <VSelect 
-          label="Tipo de Envío"
-          class="mb-4"
-          :items="tiposEnvios"
-          item-title="nombre"
-          item-value="id"
-          v-model="campos.idTipoEnvio"
-          @update:model-value="(v) => {tipoEnvio = tiposEnvios.find(x => x.id == v)!; actualizarTotal()}"
-          :item-props="(x) => ({title: x.nombre, subtitle: `$${x.precioKg}`})"
-          :rules="[campoRequerido]"
-        />
         <VTextField 
           type="number"
           step="0.1"
           label="Peso (KG)"
           class="mb-4"
           v-model.number="campos.pesoKg"
-          @update:model-value="actualizarTotal"
+          @update:model-value="()=> campos.total = campos.pesoKg > 15 ? campos.pesoKg * 0.11 : 3"
           :rules="[campoRequerido, ...reglas.peso]"
         /> 
         <VTextField 
@@ -121,14 +112,12 @@ import { useAutenticacionStore } from "@/stores/autenticacion";
 import { useClienteStore } from "@/stores/cliente";
 import { useEnvioStore } from "@/stores/envio";
 import { useSucursalStore } from "@/stores/sucursal";
-import type {ITipoEnvio} from "@/types";
-import {Rol} from "@/types";
+import {Rol, type ICliente, type IEnvio} from "@/types";
 import { storeToRefs } from "pinia";
-import { onBeforeMount } from "vue";
 import { onMounted } from "vue";
 import { reactive } from "vue";
 import {ref} from "vue";
-import type { VForm } from "vuetify/components";
+import { type VForm } from "vuetify/components";
 
 const form = ref<null | VForm>(null)
 const envioStore = useEnvioStore()
@@ -136,12 +125,10 @@ const autenticacionStore = useAutenticacionStore()
 const sucursalStore = useSucursalStore()
 const {sucursales} = storeToRefs(sucursalStore)
 const {usuario} = storeToRefs(autenticacionStore)
-const {cargando, tiposEnvios} = storeToRefs(envioStore)
+const {cargando, envios} = storeToRefs(envioStore)
 const { clientes} = storeToRefs(useClienteStore())
-const tipoEnvio = ref<ITipoEnvio | null>(null)
 interface IForm{
   idCliente: string | null
-  idTipoEnvio: string | null
   pesoKg: number
   entregaDomicilio: boolean
   destinatario: {
@@ -156,7 +143,6 @@ interface IForm{
 }
 const campos = reactive<IForm>({
   idCliente: null,
-  idTipoEnvio: null,
   pesoKg: 0,
   entregaDomicilio: false,
   destinatario: {
@@ -172,16 +158,8 @@ const campos = reactive<IForm>({
 const campoRequerido = (v:string) => !!v || 'Campo requerido!'
 const reglas = {
   peso: [
-    (v: number) => !tipoEnvio.value || tipoEnvio.value && v <= tipoEnvio.value.pesoMaximoKg && v > 0 || `No puede sobre pasar el peso máximo (${tipoEnvio.value.pesoMaximoKg} Kg)`
+    (v: number) => v > 0 || `El peso no puede ser negativo`
   ]
-}
-
-const actualizarTotal = ()=>{
-  try {
-    campos.total = campos.pesoKg * tipoEnvio.value!.precioKg
-  } catch (error) {
-    
-  }
 }
 
 const cancelar = ()=>{
@@ -192,14 +170,28 @@ const procesarFormulario = async()=>{
   const {valid} = await form.value!.validate()
   if(valid){
     await envioStore.agregar({
-      ...campos, 
+      ...campos,
+      guia: generarGuia(envios.value),
       idSecretario: usuario.value!.id,
       idCliente: campos.idCliente!,
-      idTipoEnvio: campos.idTipoEnvio!,
       idSucursalSalida: campos.idSucursalSalida!,
       idSucursalLlegada: campos.idSucursalLlegada!
     })
   }
+}
+
+const buscarCliente = (valueTitle:string, queryText:string, item:any)=>{
+  return item!.raw.cedula.indexOf(queryText) > -1 || 
+    item.raw.nombres.toLowerCase().indexOf(queryText.toLowerCase()) > -1 ||
+    item.raw.apellidos.toLowerCase().indexOf(queryText.toLowerCase()) > -1
+}
+
+const generarGuia = (envios: IEnvio[])=>{
+  let guia = '';
+  do{
+    guia = `${(Math.round(Math.random()*1000))+1000}`;
+  }while(envios.find(x => x.guia === guia));
+  return guia;
 }
 
 onMounted(()=>{

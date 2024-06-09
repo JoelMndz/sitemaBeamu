@@ -49,7 +49,6 @@ onBeforeMount(async()=>{
   
   await sucursalStore.obtenerTodo()
   await clienteStore.obtenerTodo()
-  await envioStore.obtenerTiposEnvios()
   await envioStore.obtenerTodo()
 })
 </script>

@@ -30,11 +30,78 @@ class BodegueroProvider with ChangeNotifier{
   Barcode? _resultadoQR;
   Barcode? get resultadoQR => _resultadoQR;
   set resultadoQR(Barcode? qr){_resultadoQR = qr; notifyListeners();}
+  List<Envio> _envios = [];
+  List<Envio> get envios => _envios;
 
   bool _cargando = false;
   bool get cargando => _cargando;
   set cargando(bool valor){_cargando = valor; notifyListeners();}
   final observacionController = TextEditingController();
+
+  obtenerEnvios(BuildContext context)async{
+    try {
+      _envios.clear();
+      final usuario = context.read<AutenticacionProvider>().usuarioActual!;
+      final idSucursal = usuario.idSucursal;
+      final data = await _coleccionEnvios
+        .get();
+      for (var i = 0; i < data.docs.length; i++) {
+        final jsonEnvio = data.docs[i].data()!;
+        if(((jsonEnvio['estados'] as List<dynamic>).last['estado'] == Estados.pendiente.name ||
+            (jsonEnvio['estados'] as List<dynamic>).last['estado'] == Estados.sucursal.name) &&
+            (jsonEnvio['idSucursalLlegada'] == idSucursal || jsonEnvio['idSucursalSalida'] == idSucursal)){
+          final docCliente = await _coleccionCliente.doc(jsonEnvio['idCliente']).get();
+          final docSucursalSalida = await _coleccionSucursal.doc(jsonEnvio['idSucursalSalida']).get();
+          final docSucursalLlegada = await _coleccionSucursal.doc(jsonEnvio['idSucursalLlegada']).get();
+          _envios.add(Envio(
+            id: data.docs[i].id, 
+            fecha: jsonEnvio['fechaRegistro'], 
+            cliente: Cliente(
+              id: jsonEnvio['idCliente'],
+              nombres: docCliente.data()!['nombres'],
+              apellidos: docCliente.data()!['apellidos'],
+              cedula: docCliente.data()!['cedula'],
+              email: docCliente.data()!['email']
+            ), 
+            guia: jsonEnvio['guia'], 
+            pesoKg: double.parse(jsonEnvio['pesoKg'].toString()), 
+            entregaDomicilio: jsonEnvio['entregaDomicilio'], 
+            estados: (jsonEnvio['estados'] as List<dynamic>)
+              .map((x) => Estado(
+                fecha: x['fecha'], 
+                estado: x['estado'], 
+                observacion: x['observacion'] ?? '',
+                idEmpleado: x['idEmpleado']  
+              )
+              ).toList(), 
+            destinatario: Destinatario(
+              nombre: jsonEnvio['destinatario']['nombre'],
+              celular: jsonEnvio['destinatario']['celular'],
+              direccion: jsonEnvio['destinatario']['direccion'],
+            ), 
+            sucursalSalida: Sucursal(
+              id: jsonEnvio['idSucursalSalida'],
+              nombre: docSucursalSalida.data()!['nombre'],
+              provincia: docSucursalSalida.data()!['provincia']['nombre'],
+              canton: docSucursalSalida.data()!['canton']['nombre'],
+              direccion: docSucursalSalida.data()!['direccion'],
+            ), 
+            sucursalLlegada: Sucursal(
+              id: jsonEnvio['idSucursalLlegada'],
+              nombre: docSucursalLlegada.data()!['nombre'],
+              provincia: docSucursalLlegada.data()!['provincia']['nombre'],
+              canton: docSucursalLlegada.data()!['canton']['nombre'],
+              direccion: docSucursalLlegada.data()!['direccion'],
+            ),
+            total: double.parse(jsonEnvio['total'].toString())
+          ));
+        }       
+      }
+      notifyListeners();
+    } catch (e) {
+      manejarError(context, e);
+    }
+  }
 
   navegarHaciaScanQR(BuildContext context, String accion){
     accionQR = accion;
@@ -82,7 +149,6 @@ class BodegueroProvider with ChangeNotifier{
       throw Exception('El QR no esta registrado!');
     }
     final jsonEnvio = docEnvio.data()!;
-    final docTipoEnvio = await _coleccionTipoEnvio.doc(jsonEnvio['idTipoEnvio']).get();
     final docCliente = await _coleccionCliente.doc(jsonEnvio['idCliente']).get();
     final docSucursalSalida = await _coleccionSucursal.doc(jsonEnvio['idSucursalSalida']).get();
     final docSucursalLlegada = await _coleccionSucursal.doc(jsonEnvio['idSucursalLlegada']).get();
@@ -96,7 +162,7 @@ class BodegueroProvider with ChangeNotifier{
         cedula: docCliente.data()!['cedula'],
         email: docCliente.data()!['email']
       ), 
-      tipo: docTipoEnvio.data()!['nombre'], 
+      guia: jsonEnvio['guia'], 
       pesoKg: double.parse(jsonEnvio['pesoKg'].toString()), 
       entregaDomicilio: jsonEnvio['entregaDomicilio'], 
       estados: (jsonEnvio['estados'] as List<dynamic>)

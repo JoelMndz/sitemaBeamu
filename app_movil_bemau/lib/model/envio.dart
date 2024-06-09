@@ -4,8 +4,8 @@ import 'package:app_bemau/model/sucursal.dart';
 
 class Envio{
   String id;
+  String guia;
   String fecha;
-  String tipo;
   double pesoKg;
   bool entregaDomicilio;
   double total;
@@ -17,9 +17,9 @@ class Envio{
 
   Envio({
     required this.id,
+    required this.guia,
     required this.fecha,
     required this.cliente,
-    required this.tipo,
     required this.pesoKg,
     required this.entregaDomicilio,
     required this.estados,

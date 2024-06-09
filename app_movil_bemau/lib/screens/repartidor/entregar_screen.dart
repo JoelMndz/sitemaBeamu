@@ -34,11 +34,9 @@ class _EntregarRepartidorScreenState extends State<EntregarRepartidorScreen> {
         padding: EdgeInsets.all(12.5),
         child: ListView(
           children: [
-            crearFila(context, 'Código: ', _repartidorProvider.envio!.id),
+            crearFila(context, 'Guía: ', _repartidorProvider.envio!.guia),
             SizedBox(height: responsive.heightPercentage(1)),
             crearFila(context, 'Fecha Registro: ', formaterarFechaUTC(_repartidorProvider.envio!.fecha)),
-            SizedBox(height: responsive.heightPercentage(1)),
-            crearFila(context, 'Tipo: ', _repartidorProvider.envio!.tipo,),
             SizedBox(height: responsive.heightPercentage(1)),
             crearFila(context, 'Peso: ', '${_repartidorProvider.envio!.pesoKg} kg',),
             SizedBox(height: responsive.heightPercentage(1)),

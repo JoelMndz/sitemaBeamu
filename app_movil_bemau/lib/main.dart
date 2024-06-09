@@ -4,6 +4,7 @@ import 'package:app_bemau/providers/bodeguero.dart';
 import 'package:app_bemau/providers/repartidor.dart';
 import 'package:app_bemau/screens/autenticacion/login_screen.dart';
 import 'package:app_bemau/screens/bodeguero/home_screen.dart';
+import 'package:app_bemau/screens/bodeguero/paquetes_screen.dart';
 import 'package:app_bemau/screens/bodeguero/scanear_qr_screen.dart';
 import 'package:app_bemau/screens/repartidor/entregar_screen.dart';
 import 'package:app_bemau/screens/repartidor/home_screen.dart';
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
             LoginScreen.nombre: (context) => LoginScreen(),
             HomeBodegeroScreenn.nombre: (context) => HomeBodegeroScreenn(),
             ScanearQrBodegueroScreen.nombre: (context) => ScanearQrBodegueroScreen(),
+            PaquetesBodegueroScreen.nombre: (context) => PaquetesBodegueroScreen(),
             HomeRepartidorScreen.nombre:(context) => HomeRepartidorScreen(),
             ScanearQrRepartidorScreen.nombre: (context) => ScanearQrRepartidorScreen(),
             EntregarRepartidorScreen.nombre:(context) => EntregarRepartidorScreen()

@@ -1,6 +1,7 @@
 import 'package:app_bemau/constants/accionQr.dart';
 import 'package:app_bemau/providers/autenticacion.dart';
 import 'package:app_bemau/providers/bodeguero.dart';
+import 'package:app_bemau/screens/bodeguero/paquetes_screen.dart';
 import 'package:app_bemau/screens/bodeguero/scanear_qr_screen.dart';
 import 'package:app_bemau/theme/responsive.dart';
 import 'package:flutter/material.dart';
@@ -38,16 +39,18 @@ class HomeBodegeroScreenn extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            crearItem(context, 'Enviar paquete', ()=> bodegueroProvider.navegarHaciaScanQR(context, AccionesQR.enviar_paquete.name)),
+            crearItem(context, 'Enviar paquete', ()=> bodegueroProvider.navegarHaciaScanQR(context, AccionesQR.enviar_paquete.name),Icons.qr_code_scanner),
             SizedBox(height: responsive.heightPercentage(2),),
-            crearItem(context, 'Recibir paquete', ()=> bodegueroProvider.navegarHaciaScanQR(context, AccionesQR.recibir_paquete.name)),
+            crearItem(context, 'Recibir paquete', ()=> bodegueroProvider.navegarHaciaScanQR(context, AccionesQR.recibir_paquete.name),Icons.qr_code_scanner),
+            SizedBox(height: responsive.heightPercentage(2),),
+            crearItem(context, 'Paquetes en la oficina', ()=> Navigator.pushNamed(context, PaquetesBodegueroScreen.nombre),Icons.local_post_office_outlined),
           ],
         ),
       )
     );
   }
 
-  crearItem(BuildContext context, String titulo, Function() onTap){
+  crearItem(BuildContext context, String titulo, Function() onTap, IconData icono){
     return Container(
       width: responsive.widthPercentage(50),
       child: InkWell(
@@ -63,7 +66,7 @@ class HomeBodegeroScreenn extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: responsive.heightPercentage(1),),
-                Icon(Icons.qr_code_scanner, size: responsive.heightPercentage(10),),
+                Icon(icono, size: responsive.heightPercentage(10),),
               ],
             ),
           ),

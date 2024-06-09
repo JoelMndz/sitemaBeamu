@@ -1,9 +1,9 @@
 <template>
   <VAppBar>
     <template #title>
-      <VImg 
+      <img 
         width="130"
-        src="src/assets/logo.jpg"
+        src="../assets/logo.jpg"
         @click="$router.push('/')"
         style="cursor: pointer;"
       />

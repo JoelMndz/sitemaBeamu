@@ -68,8 +68,8 @@ import { useErrorStore } from "@/stores/error";
 
 const verPassword = ref(false)
 const campos = reactive({
-  email: 'luisjo3lml@gmail.com',
-  password: '12345678'
+  email: '',
+  password: ''
 })
 
 const autenticacionStore = useAutenticacionStore()

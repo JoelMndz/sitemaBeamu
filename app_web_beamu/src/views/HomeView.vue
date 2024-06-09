@@ -9,10 +9,10 @@
       <VCol>
         <VTextField 
           variant="solo-filled"
-          label="Código del envío"
+          label="Guía del envío"
           v-model="codigo"
           clearable
-          :rules="[(v) => !!v || 'Ingrese el código']"
+          :rules="[(v) => !!v || 'Ingrese la guía']"
           :loading="cargando"
         >
           <template #append-inner>
@@ -27,73 +27,7 @@
     </VRow>
     <VRow v-if="envio" class="mt-5" justify="center">
       <VCol cols="auto">
-        <VTimeline 
-          align="center"
-        >
-          <VTimelineItem
-            dot-color="primary"
-            size="small"
-            v-for="i in envio.estados"
-          >
-            <template #opposite>
-              <strong class="me-4">{{ new Date(i.fecha).toLocaleString() }}</strong>
-            </template> 
-            <VCard>
-              <VCardTitle class="mb-2 text-h6 bg-primary" >
-                {{ formatearEstado(i.estado) }}
-              </VCardTitle>
-              <VCardText>
-                <template v-if="i.estado === Estado.PENDIENTE">
-
-                  <p class="mb-1">
-                    <strong>Cliente: </strong> 
-                    {{ envio.cliente.nombres }} {{ envio.cliente.apellidos }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Nombre del destinatario: </strong> 
-                    {{ envio.destinatario.nombre }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Dirección del destinatario: </strong> 
-                    {{ envio.destinatario.direccion }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Celular del destinatario: </strong> 
-                    {{ envio.destinatario.celular }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Sucursal Salida: </strong> 
-                    {{ envio.sucursalSalida.nombre }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Sucursal Llegada: </strong> 
-                    {{ envio.sucursalLlegada.nombre }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Peso: </strong> 
-                    {{ envio.pesoKg }} Kg
-                  </p>
-                  <p class="mb-1">
-                    <strong>Entregar a domicilio: </strong> 
-                    {{ envio.entregaDomicilio ? 'Si':'No' }}
-                  </p>
-                  <p class="mb-1">
-                    <strong>Total: </strong> 
-                    $ {{ envio.total }}
-                  </p>
-                </template>
-                <p v-if="i.observacion"class="mb-1">
-                  <strong>Observación: </strong> 
-                  {{ i.observacion }}
-                </p>
-              </VCardText>
-            </VCard>
-            <VImg
-              v-if="i.imagenURL"
-              :src="i.imagenURL"
-            />
-          </VTimelineItem>
-        </VTimeline>
+        <DetalleEnvio :envio="envio" />
       </VCol>
     </VRow>
   </VContainer>
@@ -117,28 +51,32 @@
 </template>
 
 <script lang="ts" setup>
-import type { ICliente, IEnvio, IEnvioDetalle, ISucursal } from '@/types';
+import DetalleEnvio from '@/components/DetalleEnvio.vue';
+import type { ICliente, IEnvio, ISucursal } from '@/types';
 import {Estado} from "@/types";
 
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore';
 import { capitalize, ref } from 'vue';
 
-const codigo = ref('m6Rh6ZHNphvJ5kYVebBw');
+const codigo = ref('');
 const cargando = ref(false);
 const snackbar = ref(false);
-const envio = ref<IEnvioDetalle | null>(null);
+const envio = ref<IEnvio | null>(null);
 
 const buscarEnvio = async()=>{
   try {
     cargando.value = true;
-    const resultado = await getDoc(
-      doc(getFirestore(),'envios', codigo.value)
+    const respuesta = await getDocs(
+      query(
+        collection(getFirestore(), 'envios'),
+        where('guia','==',codigo.value)
+      )
     );
-    if(!resultado.exists()){
+    if(respuesta.docs.length == 0){
       snackbar.value = true;
       return;
     }
-    
+    const resultado = respuesta.docs[0];
     const resultadoCliente = await getDoc(
       doc(getFirestore(),'clientes', resultado.data()!['idCliente'])
     );
@@ -172,18 +110,4 @@ const buscarEnvio = async()=>{
   }
 }
 
-const formatearEstado = (estado: Estado)=>{
-  switch(estado){
-    case Estado.VIAJANDO:
-      return 'Despachado al destino'
-    case Estado.SUCURSAL:
-      return 'Arribo en la Sucursal'
-    case Estado.REPARTO:
-      return 'En Reparto a su domicilio'
-    case Estado.ENTREGADO:
-      return 'Paquete entregado'
-    default:
-      return capitalize(Estado.PENDIENTE)
-  }
-}
 </script>

@@ -70,19 +70,11 @@ interface IEstado{
   imagenURL?: string | null
 }
 
-export interface ITipoEnvio{
-  id: string
-  nombre: string
-  descripcion: string
-  precioKg: number
-  pesoMaximoKg: number
-}
-
 export interface IEnvio{
   id: string
+  guia: string
   fechaRegistro: string
   idCliente: string
-  idTipoEnvio: string
   pesoKg: number
   entregaDomicilio: boolean
   estados: IEstado[]
@@ -97,12 +89,11 @@ export interface IEnvio{
   sucursalSalida: ISucursal
   sucursalLlegada: ISucursal
   cliente: ICliente
-  tipoEnvio: ITipoEnvio
 }
 
 export interface IEnvioAgregar{
   idCliente: string
-  idTipoEnvio: string
+  guia: string
   pesoKg: number
   entregaDomicilio: boolean
   idSecretario: string
@@ -121,7 +112,6 @@ export interface IEnvioDetalle{
   id: string
   fechaRegistro: string
   idCliente: string
-  idTipoEnvio: string
   pesoKg: number
   entregaDomicilio: boolean
   estados: IEstado[]

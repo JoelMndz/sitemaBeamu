@@ -28,8 +28,10 @@
       <VSelect 
         label="Rol"
         class="mb-4"
-        :items="Object.values(Rol)"
+        :items="Object.values(Rol).map(x => ({id: x, title: capitalize(x)}))"
         v-model="campos.rol"
+        item-title="title"
+        item-value="id"
         clearable
         :rules="reglas.requerido"
       /> 
@@ -92,7 +94,7 @@ import { useEmpleadoStore } from "@/stores/empleado";
 import { useSucursalStore } from "@/stores/sucursal";
 import { Rol } from "@/types";
 import { storeToRefs } from "pinia";
-import { onBeforeMount } from "vue";
+import { capitalize, onBeforeMount } from "vue";
 import { reactive } from "vue";
 import { computed } from "vue";
 import {ref} from "vue";
